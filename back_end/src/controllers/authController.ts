@@ -61,3 +61,10 @@ export async function loginUser(
     next(error);
   }
 }
+
+export async function logoutUser(req: Request, res: Response) {
+  res.status(200).json({
+    message: "Logout realizado com sucesso - remova o token no cliente.",
+  });
+  return;
+}
