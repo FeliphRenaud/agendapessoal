@@ -71,198 +71,200 @@ router.post("/", authMiddleware, async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
-  /*-------------------------------------------------------------------------------------*/
-  /*                            LISTANDO TODOS OS EVENTOS DO USUARIO                     */
-  /*------------------------------------------------------------------------------------ */
+}); // correção em na sintaxe da função do jeit oque estava
+//todas as rotas estavam desenvolvidas dentro dela
 
-  router.get("/", authMiddleware, async (req: Request, res: Response) => {
-    try {
-      const userId = req.body.userId;
-      const events = await prisma.event.findMany({
-        where: { userId },
-        orderBy: { startTime: "asc" },
-      });
-      res.json(events);
-      return;
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-      return;
-    }
-  });
+/*-------------------------------------------------------------------------------------*/
+/*                            LISTANDO TODOS OS EVENTOS DO USUARIO                     */
+/*------------------------------------------------------------------------------------ */
 
-  /*-----------------------------------------------------------------------*/
-  /*                      BUSCA DE EVENTOS POR DATA                        */
-  /*-----------------------------------------------------------------------*/
+router.get("/", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
+    const events = await prisma.event.findMany({
+      where: { userId },
+      orderBy: { startTime: "asc" },
+    });
+    res.json(events);
+    return;
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+    return;
+  }
+});
 
-  router.get("/serach", authMiddleware, async (req: Request, res: Response) => {
-    try {
-      const userId = req.body.userId;
+/*-----------------------------------------------------------------------*/
+/*                      BUSCA DE EVENTOS POR DATA                        */
+/*-----------------------------------------------------------------------*/
+//auteração por erro gramatical
+router.get("/search", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
 
-      //parametros da query
-      const { start, end } = req.query;
+    //parametros da query
+    const { start, end } = req.query;
 
-      //caso a pesquisa seja feita sem uma data inserida
-      const startDate = start
-        ? new Date(start as string)
-        : new Date("1970-01-01");
-      const endDate = end ? new Date(end as string) : new Date("3000-01-01");
+    //caso a pesquisa seja feita sem uma data inserida
+    const startDate = start
+      ? new Date(start as string)
+      : new Date("1970-01-01");
+    const endDate = end ? new Date(end as string) : new Date("3000-01-01");
 
-      // pesquisa por horario relacionando os horarios de inicio e fim dos compromissos
+    // pesquisa por horario relacionando os horarios de inicio e fim dos compromissos
 
-      const events = await prisma.event.findMany({
-        where: {
-          userId,
-          startTime: { lt: endDate },
-          endTime: { gt: startDate },
-        },
-        orderBy: { startTime: "asc" },
-      });
+    const events = await prisma.event.findMany({
+      where: {
+        userId,
+        startTime: { lt: endDate },
+        endTime: { gt: startDate },
+      },
+      orderBy: { startTime: "asc" },
+    });
 
-      res.json(events);
-      return;
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-      return;
-    }
-  });
+    res.json(events);
+    return;
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+    return;
+  }
+});
 
-  /*-------------------------------------------------------------------------------*/
-  /*                 BUSCANDO DETALHES ESPECIFICOS DO EVENTO                       */
-  /*-------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------------*/
+/*                 BUSCANDO DETALHES ESPECIFICOS DO EVENTO                       */
+/*-------------------------------------------------------------------------------*/
 
-  router.get("/:id", authMiddleware, async (req: Request, res: Response) => {
-    try {
-      const userId = req.body.userId;
-      const { id } = req.params;
+router.get("/:id", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
+    const { id } = req.params;
 
-      //buscando evento pelo id e userid
+    //buscando evento pelo id e userid
 
-      const event = await prisma.event.findFirst({
-        where: {
-          id,
-          userId,
-        },
-      });
+    const event = await prisma.event.findFirst({
+      where: {
+        id,
+        userId,
+      },
+    });
 
-      if (!event) {
-        res.status(404).json({ error: "Evento nao localizado" });
-        return;
-      }
-
-      res.json(event);
-      return;
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
-  });
-
-  /* -------------------------------------------------------------------------- */
-  /*                            EDIÇÃO DE UM EVENTO                             */
-  /* -------------------------------------------------------------------------- */
-
-  router.put("/:id", authMiddleware, async (req: Request, res: Response) => {
-    try {
-      const userId = req.body.userId;
-      const { id } = req.params;
-
-      // Valida os dados que podem ser atualizados
-      const { title, description, startTime, endTime } = eventSchema.parse(
-        req.body
-      );
-
-      const start = new Date(startTime);
-      const end = new Date(endTime);
-
-      if (start >= end) {
-        res.status(400).json({
-          error: "O horário de início deve ser anterior ao horário de término.",
-        });
-        return;
-      }
-
-      // Verifica se o evento existe e pertence ao usuario
-      const existingEvent = await prisma.event.findFirst({
-        where: { id, userId },
-      });
-
-      if (!existingEvent) {
-        res.status(404).json({
-          error: "Evento não encontrado ou não pertence a este usuário.",
-        });
-        return;
-      }
-
-      // Verifica sobreposição (excluindo ele mesmo, se for o caso)
-      const overlappingEvent = await prisma.event.findFirst({
-        where: {
-          userId,
-          id: { not: id }, // ignora o próprio evento durante a verificação
-          OR: [
-            { startTime: { lte: start }, endTime: { gt: start } },
-            { startTime: { lt: end }, endTime: { gte: end } },
-            { startTime: { gte: start }, endTime: { lte: end } },
-          ],
-        },
-      });
-
-      if (overlappingEvent) {
-        res.status(400).json({
-          error: "Já existe um evento marcado para esse período de tempo.",
-        });
-        return;
-      }
-
-      // grava a atualização
-      const updatedEvent = await prisma.event.update({
-        where: { id },
-        data: {
-          title,
-          description,
-          startTime: start,
-          endTime: end,
-        },
-      });
-
-      res.json(updatedEvent);
-      return;
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+    if (!event) {
+      res.status(404).json({ error: "Evento nao localizado" });
       return;
     }
-  });
 
-  /* -------------------------------------------------------------------------- */
-  /*                          EXCLUSÃO DE EVENTO                                */
-  /* -------------------------------------------------------------------------- */
+    res.json(event);
+    return;
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
-  router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
-    try {
-      const userId = req.body.userId;
-      const { id } = req.params;
+/* -------------------------------------------------------------------------- */
+/*                            EDIÇÃO DE UM EVENTO                             */
+/* -------------------------------------------------------------------------- */
 
-      // Verifica se o evento existe e pertence ao usuario
-      const existingEvent = await prisma.event.findFirst({
-        where: { id, userId },
+router.put("/:id", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
+    const { id } = req.params;
+
+    // Valida os dados que podem ser atualizados
+    const { title, description, startTime, endTime } = eventSchema.parse(
+      req.body
+    );
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    if (start >= end) {
+      res.status(400).json({
+        error: "O horário de início deve ser anterior ao horário de término.",
       });
-
-      if (!existingEvent) {
-        res.status(404).json({
-          error: "Evento não encontrado ou não pertence a este usuário.",
-        });
-        return;
-      }
-
-      await prisma.event.delete({
-        where: { id },
-      });
-
-      res.status(200).json({ message: "Evento excluído com sucesso" });
-      return;
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
       return;
     }
-  });
+
+    // Verifica se o evento existe e pertence ao usuario
+    const existingEvent = await prisma.event.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existingEvent) {
+      res.status(404).json({
+        error: "Evento não encontrado ou não pertence a este usuário.",
+      });
+      return;
+    }
+
+    // Verifica sobreposição (excluindo ele mesmo, se for o caso)
+    const overlappingEvent = await prisma.event.findFirst({
+      where: {
+        userId,
+        id: { not: id }, // ignora o próprio evento durante a verificação
+        OR: [
+          { startTime: { lte: start }, endTime: { gt: start } },
+          { startTime: { lt: end }, endTime: { gte: end } },
+          { startTime: { gte: start }, endTime: { lte: end } },
+        ],
+      },
+    });
+
+    if (overlappingEvent) {
+      res.status(400).json({
+        error: "Já existe um evento marcado para esse período de tempo.",
+      });
+      return;
+    }
+
+    // grava a atualização
+    const updatedEvent = await prisma.event.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        startTime: start,
+        endTime: end,
+      },
+    });
+
+    res.json(updatedEvent);
+    return;
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+    return;
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/*                          EXCLUSÃO DE EVENTO                                */
+/* -------------------------------------------------------------------------- */
+
+router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
+    const { id } = req.params;
+
+    // Verifica se o evento existe e pertence ao usuario
+    const existingEvent = await prisma.event.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existingEvent) {
+      res.status(404).json({
+        error: "Evento não encontrado ou não pertence a este usuário.",
+      });
+      return;
+    }
+
+    await prisma.event.delete({
+      where: { id },
+    });
+
+    res.status(200).json({ message: "Evento excluído com sucesso" });
+    return;
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+    return;
+  }
 });
 
 export default router;
