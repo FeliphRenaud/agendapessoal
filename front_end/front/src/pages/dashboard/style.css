@@ -1,0 +1,166 @@
+/* Fundo entre salmão e rosa claro para a tela */
+.dashboard-container {
+  background-color: #ffd1dc; /* Exemplo de rosa claro */
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* Card principal do Dashboard */
+.dashboard-card {
+  position: relative;
+  width: 600px; /* Ajuste conforme quiser */
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid transparent; /* Inicia transparente */
+  background-color: #ffffff;
+  overflow: hidden;
+
+  /* Animação para "desenhar" a borda ouro envelhecido */
+  animation: borderAnimation 2s forwards;
+}
+
+/* Após a animação da borda, os conteúdos do card aparecem */
+.card-content {
+  opacity: 0;
+  animation: showContent 0.8s forwards;
+  animation-delay: 2s; /* Espera a animação da borda acabar */
+}
+
+/* Cabeçalho com h1 e botão de logout em lados opostos */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Seção que centraliza todo o conteúdo abaixo do cabeçalho */
+.content-center {
+  text-align: center;
+}
+
+/* Animação para a borda ir "surgindo" */
+@keyframes borderAnimation {
+  0% {
+    border-color: transparent;
+  }
+  100% {
+    border-color: #daa520; /* Ouro envelhecido */
+  }
+}
+
+/* Exibe o conteúdo depois que a borda termina de ser desenhada */
+@keyframes showContent {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Botão de sair (logout) */
+.logout-btn {
+  border: 2px solid #daa520;
+  background-color: #daa520;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Hover no botão de logout */
+.logout-btn:hover {
+  background-color: #e5a51b;
+  color: #1a1a1a;
+}
+
+/* Formulário */
+form {
+  display: inline-block; /* Para poder centralizar o form em text-align: center */
+  text-align: left;      /* Mantém labels/inputs alinhados à esquerda entre si */
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;        /* Centraliza horizontalmente o bloco do form */
+}
+
+/* Labels */
+form label {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* Inputs do formulário */
+form input {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #daa520; /* Mesma cor do efeito no card */
+  outline: none;
+  font-size: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Placeholder translúcido em 50% */
+form input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* Botão de criar/salvar evento */
+form button {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 2px solid #daa520; 
+  background-color: #daa520;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+/* Hover do botão principal do formulário */
+form button:hover {
+  background-color: #e5a51b; 
+  color: #1a1a1a;
+}
+
+/* Lista de eventos */
+.events-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0 auto;
+  display: inline-block; /* Para centralizar a lista via text-align: center */
+  text-align: left;      /* Cada item de evento fica alinhado à esquerda */
+}
+
+/* Item de evento */
+.event-item {
+  margin-bottom: 15px;
+}
+
+/* Botões de Editar/Excluir dentro dos eventos */
+.event-item button {
+  margin: 5px 5px 0 0;
+  border: 2px solid #daa520;
+  background-color: #daa520;
+  color: #fff;
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Hover nos botões de Editar/Excluir */
+.event-item button:hover {
+  background-color: #e5a51b;
+  color: #1a1a1a;
+}

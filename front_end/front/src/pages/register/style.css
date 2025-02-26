@@ -1,0 +1,90 @@
+/* Fundo entre salmão e rosa claro para a tela */
+.register-container {
+  background-color: #ffd1dc; /* Exemplo de rosa claro */
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* Card onde fica o conteúdo de cadastro */
+.register-card {
+  position: relative;
+  width: 320px;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid transparent; /* Inicia transparente */
+  background-color: #ffffff;
+  overflow: hidden;
+
+  /* Animação para "desenhar" a borda */
+  animation: borderAnimation 2s forwards;
+}
+
+/* Após a animação da borda, os conteúdos do card aparecem */
+.card-content {
+  opacity: 0;
+  animation: showContent 0.8s forwards;
+  animation-delay: 2s; /* Espera a animação da borda acabar */
+}
+
+/* Animação para a borda ir surgindo em ouro envelhecido */
+@keyframes borderAnimation {
+  0% {
+    border-color: transparent;
+  }
+  100% {
+    border-color: #daa520; /* Ouro envelhecido */
+  }
+}
+
+/* Animação para exibir o conteúdo após a borda */
+@keyframes showContent {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Estilização dos inputs */
+form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #daa520;
+  outline: none;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* Placeholder translúcido em 50% */
+form input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* Botão de submit */
+form button {
+  display: inline-block;
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 2px solid #daa520; 
+  background-color: #daa520;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Hover do botão: levemente mais claro e fonte um pouco mais escura */
+form button:hover {
+  background-color: #e5a51b; /* Tom mais claro */
+  color: #1a1a1a;
+}
