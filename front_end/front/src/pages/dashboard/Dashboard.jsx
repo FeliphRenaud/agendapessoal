@@ -22,7 +22,7 @@ function Dashboard() {
 
   useEffect(() => {
     if (!user) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 
